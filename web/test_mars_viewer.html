@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Test 3D Mars Viewer</title>
+  <script>
+    // Force visibility state to visible even if Chrome window is in background
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', writable: true });
+    Object.defineProperty(document, 'hidden', { value: false, writable: true });
+    window.addEventListener('load', () => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+  </script>
+  <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #0B0E17;
+      color: #E2E8F0;
+      font-family: sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    model-viewer {
+      width: 320px;
+      height: 320px;
+      background: #151D2A;
+      border-radius: 16px;
+      border: 1px solid #2A364F;
+    }
+    .grid {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <h1>Validating 3D Models in &lt;model-viewer&gt;</h1>
+  <div class="grid">
+    <div class="card">
+      <h2>Mars (Local)</h2>
+      <model-viewer id="mv-mars" src="/assets/models/mars.glb" loading="eager" auto-rotate camera-controls></model-viewer>
+      <p id="mars-status">Loading...</p>
+    </div>
+    <div class="card">
+      <h2>Astronaut (Reference)</h2>
+      <model-viewer id="mv-astro" src="https://modelviewer.dev/shared-assets/models/Astronaut.glb" loading="eager" auto-rotate camera-controls></model-viewer>
+      <p id="astro-status">Loading...</p>
+    </div>
+  </div>
+
+  <script>
+    ['mars', 'astro'].forEach(id => {
+      const mv = document.getElementById('mv-' + id);
+      const status = document.getElementById(id + '-status');
+      mv.addEventListener('load', () => {
+        status.innerText = 'LOADED SUCCESSFULLY! Model visible: ' + mv.modelIsVisible;
+        status.style.color = '#4ADE80';
+      });
+      mv.addEventListener('error', (e) => {
+        status.innerText = 'ERROR: ' + JSON.stringify(e.detail);
+        status.style.color = '#F87171';
+      });
+      mv.addEventListener('progress', (e) => {
+        console.log(id, 'progress:', e.detail.totalProgress);
+        if (e.detail.totalProgress === 1) {
+          console.log(id, 'finished loading bytes');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
